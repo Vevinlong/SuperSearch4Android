@@ -3,3 +3,9 @@
 　　基于此，写下了这个应用，通过整合百度site搜索命令的结果（百度有指定一个网址内搜索的功能，不能指定多个网址），达到在指定的网站集合中搜索，让搜索更有针对性，效率也更高，当然后期也会增加时间区间的功能，让搜到的文章更新。
 ## 软件界面
 ![主界面](https://github.com/lanyuanxiaoyao/SuperSearch4Android/blob/master/READMEPIC/1.png)
+![主界面](https://github.com/lanyuanxiaoyao/SuperSearch4Android/blob/master/READMEPIC/2.png)
+## 设置界面
+![设置界面](https://github.com/lanyuanxiaoyao/SuperSearch4Android/blob/master/READMEPIC/3.png)
+## 搜索结果
+![搜索结果](https://github.com/lanyuanxiaoyao/SuperSearch4Android/blob/master/READMEPIC/4.png)
+![搜索结果](https://github.com/lanyuanxiaoyao/SuperSearch4Android/blob/master/READMEPIC/5.png)
