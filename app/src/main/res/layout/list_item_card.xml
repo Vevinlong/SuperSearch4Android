@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:descendantFocusability="beforeDescendants"><!-- 为突出卡片效果，需设置左右padding,上下通过listView的divider设置 -->
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:paddingLeft="15dp"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:paddingRight="15dp"
+        android:background="@drawable/card_background_selector"
+        android:descendantFocusability="afterDescendants"><!-- 给每个item增加background -->
+
+        <TextView
+            android:id="@+id/line1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="20dp"
+            android:textColorHighlight="@color/black"
+            android:text="姚明110米栏夺冠"/>
+        <TextView
+            android:id="@+id/line2"
+            android:layout_marginTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:text="2016-11-11 日前姚明在埃及举行的冬奥会上以5秒的破宇宙记录的成绩获得100米栏的冠军，据悉本次比赛的最大功臣是裁判，我们记者……"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/line3"
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="qq.com"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+</FrameLayout>

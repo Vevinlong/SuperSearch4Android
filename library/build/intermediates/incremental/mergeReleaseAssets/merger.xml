@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="F:\laboratory\AndroidStudioProjects\SuperSearch\library\src\main\assets"/><source path="F:\laboratory\AndroidStudioProjects\SuperSearch\library\build\generated\assets\shaders\release"/></dataSet><dataSet config="release"><source path="F:\laboratory\AndroidStudioProjects\SuperSearch\library\src\release\assets"/></dataSet></merger>
