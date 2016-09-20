@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,11 +35,15 @@ public class MainActivity extends AppCompatActivity {
     List<Baidu> baiduList;
     String q_keyword = "";
     String[] sites;
+    SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        preferences = getSharedPreferences("Sites_Book", 0);
+        shouUpdateInfo();
 
         initSites();
 
@@ -54,8 +59,23 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnRefreshListener(onRefreshListener);
     }
 
+    private void shouUpdateInfo() {
+        String last_version = preferences.getString("last_version","0.0");
+        String now_version = preferences.getString("now_version","1.0");
+        SharedPreferences.Editor editor = preferences.edit();
+        if (!now_version.equals(last_version)){
+            AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
+            ab.setTitle("更新");
+            ab.setMessage(R.string.update_info);
+            ab.setPositiveButton("OK",null);
+            ab.show();
+            editor.putString("last_version",now_version);
+            editor.commit();
+        }
+    }
+
     private void initSites() {
-        String temp = getSharedPreferences("Sites_Book", 0).getString("sites", "");
+        String temp = preferences.getString("sites", "");
         if (temp.equals("")) temp = "baidu.com";
         sites = temp.split(":");
     }
