@@ -89,7 +89,7 @@ public class GetBaiduList {
             return list;
         }
 
-        return null;
+        return list;
     }
 
 }
