@@ -42,7 +42,7 @@
         android:textSize="14sp" />
 
     <TextView
-        android:text="　　使用说明：将您所信任的网址输入上面并保存，然后即可在指定的站点内搜索相应内容，由于百度网页的限制，建议输入的网址在10条以内，太多条网址会导致获取结果变慢。"
+        android:text="　　使用说明：将您所信任的网址输入上面并保存，一行一个网址，回车换行，然后即可在指定的站点内搜索相应内容，由于百度网页的限制，建议输入的网址在10条以内，太多条网址会导致获取结果变慢。"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button"

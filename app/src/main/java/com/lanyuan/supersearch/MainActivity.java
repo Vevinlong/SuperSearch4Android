@@ -1,5 +1,6 @@
 package com.lanyuan.supersearch;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int RESULT_FROM_SETTING = 1;
     public static final int RESULT_SITES = 2;
+    public static int IS_NEXT = 0;
 
     FloatingSearchView searchView;
     PullToRefreshListView listView;
@@ -43,7 +45,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         preferences = getSharedPreferences("Sites_Book", 0);
-        shouUpdateInfo();
+
+        UtilSet.updateInfo(MainActivity.this);
+
+        NetworkJudgment();
 
         initSites();
 
@@ -59,18 +64,18 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnRefreshListener(onRefreshListener);
     }
 
-    private void shouUpdateInfo() {
-        String last_version = preferences.getString("last_version","0.0");
-        String now_version = preferences.getString("now_version","1.0");
-        SharedPreferences.Editor editor = preferences.edit();
-        if (!now_version.equals(last_version)){
+    private void NetworkJudgment() {
+        if(!UtilSet.isNetworkAvailable(MainActivity.this)){
             AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
-            ab.setTitle("更新");
-            ab.setMessage(R.string.update_info);
-            ab.setPositiveButton("OK",null);
+            ab.setTitle("错误！");
+            ab.setMessage("网络似乎没有连接……\n请确认后再重启应用……");
+            ab.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    System.exit(0);
+                }
+            });
             ab.show();
-            editor.putString("last_version",now_version);
-            editor.commit();
         }
     }
 
@@ -88,11 +93,15 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onPullUpToRefresh(PullToRefreshBase refreshView) {
+            /*if (MainActivity.IS_NEXT == 1) {
+                listView.setMode(PullToRefreshBase.Mode.DISABLED);
+                Snackbar.make(getWindow().getDecorView(), "没有更多内容", Snackbar.LENGTH_SHORT).show();
+                listView.onRefreshComplete();
+            } else */
             if (!q_keyword.isEmpty()) {
                 new getUpdateDataTask().execute();
             } else {
                 Snackbar.make(getWindow().getDecorView(), "没有内容", Snackbar.LENGTH_SHORT).show();
-
             }
         }
     };
@@ -112,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(new Intent(MainActivity.this, SettingActivity.class), RESULT_FROM_SETTING);
                     break;
                 case R.id.about:
-                    startActivity(new Intent(MainActivity.this,AboutActivity.class));
+                    startActivity(new Intent(MainActivity.this, AboutActivity.class));
                     break;
                 case R.id.cacel:
                     System.exit(0);
@@ -138,11 +147,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onSearchAction(String currentQuery) {
             q_keyword = currentQuery;
-            if (!currentQuery.equals("")){
+            if (!currentQuery.equals("")) {
+                MainActivity.IS_NEXT = 0;
                 getBaiduList(currentQuery);
                 listView.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
-            }
-            else listView.removeAllViews();
+            } else listView.removeAllViews();
         }
     };
 
@@ -150,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Intent intent = new Intent("android.intent.action.VIEW");
-            intent.setData(Uri.parse(baiduList.get(position-1).getReal_url()));
+            intent.setData(Uri.parse(baiduList.get(position - 1).getReal_url()));
             startActivity(intent);
         }
     };
@@ -162,6 +171,9 @@ public class MainActivity extends AppCompatActivity {
                 switch (msg.what) {
                     case 1:
                         baiduList = (List<Baidu>) msg.obj;
+                        Log.e("eye", String.valueOf(baiduList.size()));
+                        if (baiduList.size() == 0)
+                            Snackbar.make(getWindow().getDecorView(), "没有更多内容", Snackbar.LENGTH_SHORT).show();
                         adapter = new BaiduListAdapter(baiduList, MainActivity.this);
                         listView.setAdapter(adapter);
                 }
@@ -172,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                GetBaiduList.pn = 0;
                 Message msg = new Message();
                 msg.what = 1;
                 msg.obj = GetBaiduList.getBaiduResult(keyword, sites);
@@ -189,7 +202,12 @@ public class MainActivity extends AppCompatActivity {
                 public void handleMessage(Message msg) {
                     switch (msg.what) {
                         case 1:
-                            baiduList.addAll((List<Baidu>) msg.obj);
+                            if (msg.obj != null) {
+                                baiduList.addAll((List<Baidu>) msg.obj);
+                            } else {
+                                listView.setMode(PullToRefreshBase.Mode.DISABLED);
+                                Snackbar.make(getWindow().getDecorView(), "没有更多内容", Snackbar.LENGTH_SHORT).show();
+                            }
                             adapter.notifyDataSetChanged();
                             listView.onRefreshComplete();
                     }
@@ -202,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
         protected String[] doInBackground(Void... params) {
             Message msg = new Message();
             msg.what = 1;
-            msg.obj = GetBaiduList.getBaiduResult(q_keyword, sites);
+            msg.obj = GetBaiduList.updaterBaiduResult();
             MainActivity.this.handler.sendMessage(msg);
             return new String[0];
         }

@@ -9,6 +9,8 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -18,32 +20,74 @@ import okhttp3.Response;
 
 public class GetBaiduList {
 
-    static int pn = 0;
+    static int pn = 10;
     static List<Baidu> list = new ArrayList<>();
+    static List<String> site_list;
     static String last_Keyword;
 
     public static List<Baidu> getBaiduResult(String keyword, String[] sites) {
-        if(!keyword.equals(last_Keyword)){
+        pn = 10;
+        site_list = new ArrayList<>(Arrays.asList(sites));
+        if (!keyword.equals(last_Keyword)) {
             list.removeAll(list);
             last_Keyword = keyword;
         }
+        List<Baidu> tempList = new ArrayList<>();
+        Iterator<String> iterator = site_list.iterator();
+        while (iterator.hasNext()) {
+            List<Baidu> tempplist = getSingleBaiduResult(keyword, iterator.next(), 0);
+            tempList.addAll(tempplist);
+            if (tempplist.size() < 10) iterator.remove();
+        }
+        for (int i = tempList.size(); i > 0; i--) {
+            int tempnum = new Random().nextInt(i);
+            list.add(tempList.get(tempnum));
+            tempList.remove(tempnum);
+        }
+        Log.e("eye", String.valueOf(site_list.size()));
+        List<Baidu> tempList2 = new ArrayList<>();
+
         if (list.size() < 10) {
+            for (int j = 0; j < list.size(); j++) {
+                tempList2.add(list.get(list.size() - 1));
+                list.remove(list.size() - 1);
+            }
+            MainActivity.IS_NEXT = 1;
+        } else {
+            for (int j = 0; j < 10; j++) {
+                tempList2.add(list.get(list.size() - 1));
+                list.remove(list.size() - 1);
+            }
+        }
+        return tempList2;
+    }
+
+    public static List<Baidu> updaterBaiduResult() {
+        if (site_list.size() == 0) {
+            MainActivity.IS_NEXT = 1;
+            return null;
+        } else if (list.size() < 10) {
             List<Baidu> tempList = new ArrayList<>();
-            for (String site : sites) {
-                tempList.addAll(getSingleBaiduResult(keyword, site, pn));
+            Iterator<String> iterator = site_list.iterator();
+            while (iterator.hasNext()) {
+                List<Baidu> tempplist = getSingleBaiduResult(last_Keyword, iterator.next(), pn);
+                tempList.addAll(tempplist);
+                if (tempplist.size() < 10) iterator.remove();
             }
             for (int i = tempList.size(); i > 0; i--) {
                 int tempnum = new Random().nextInt(i);
                 list.add(tempList.get(tempnum));
                 tempList.remove(tempnum);
             }
+            Log.e("eye", String.valueOf(list.size()));
             pn += 10;
-            return GetBaiduList.getBaiduResult(keyword,sites);
+            Log.e("eye", String.valueOf(pn));
+            return updaterBaiduResult();
         } else {
             List<Baidu> tempList = new ArrayList<>();
-            for (int i = 0; i < 10; i++) {
-                tempList.add(list.get(list.size()-1));
-                list.remove(list.size()-1);
+            for (int j = 0; j < 10; j++) {
+                tempList.add(list.get(list.size() - 1));
+                list.remove(list.size() - 1);
             }
             return tempList;
         }
