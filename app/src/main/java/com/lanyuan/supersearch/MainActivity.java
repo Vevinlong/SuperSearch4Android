@@ -22,15 +22,19 @@ import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final long FIND_SUGGESTION_SIMULATED_DELAY = 250;
     public static final int RESULT_FROM_SETTING = 1;
     public static final int RESULT_SITES = 2;
     public static int IS_NEXT = 0;
 
     FloatingSearchView searchView;
+    List<SearchSuggestion> searchSuggestions;
     PullToRefreshListView listView;
     Handler handler;
     BaiduListAdapter adapter;
@@ -45,27 +49,28 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         preferences = getSharedPreferences("Sites_Book", 0);
+        searchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
+        listView = (PullToRefreshListView) findViewById(R.id.list_v);
 
         UtilSet.updateInfo(MainActivity.this);
+        UtilSet.setTranslucentDecor(MainActivity.this);
 
         NetworkJudgment();
 
-        initSites();
+        init();
 
-        searchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
         searchView.setOnSearchListener(searchListener);
         searchView.setOnMenuItemClickListener(menuItemClickListener);
+        searchView.setOnQueryChangeListener(queryChangeListener);
+        searchView.setOnFocusChangeListener(focusChangeListener);
 
-        listView = (PullToRefreshListView) findViewById(R.id.list_v);
         listView.setOnItemClickListener(itemClickListener);
-
         listView.setMode(PullToRefreshBase.Mode.DISABLED);
-        initRefreshView();
         listView.setOnRefreshListener(onRefreshListener);
     }
 
     private void NetworkJudgment() {
-        if(!UtilSet.isNetworkAvailable(MainActivity.this)){
+        if (!UtilSet.isNetworkAvailable(MainActivity.this)) {
             AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
             ab.setTitle("错误！");
             ab.setMessage("网络似乎没有连接……\n请确认后再重启应用……");
@@ -79,34 +84,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void initSites() {
+    private void init() {
         String temp = preferences.getString("sites", "");
         if (temp.equals("")) temp = "baidu.com";
         sites = temp.split(":");
-    }
+        Log.e("eye","123");
+        String history = preferences.getString("history","");
+        Log.e("eye",history);
+        UtilSet.setHistoryList(history);
 
-    PullToRefreshBase.OnRefreshListener2 onRefreshListener = new PullToRefreshBase.OnRefreshListener2() {
-        @Override
-        public void onPullDownToRefresh(PullToRefreshBase refreshView) {
-
-        }
-
-        @Override
-        public void onPullUpToRefresh(PullToRefreshBase refreshView) {
-            /*if (MainActivity.IS_NEXT == 1) {
-                listView.setMode(PullToRefreshBase.Mode.DISABLED);
-                Snackbar.make(getWindow().getDecorView(), "没有更多内容", Snackbar.LENGTH_SHORT).show();
-                listView.onRefreshComplete();
-            } else */
-            if (!q_keyword.isEmpty()) {
-                new getUpdateDataTask().execute();
-            } else {
-                Snackbar.make(getWindow().getDecorView(), "没有内容", Snackbar.LENGTH_SHORT).show();
-            }
-        }
-    };
-
-    private void initRefreshView() {
         ILoadingLayout layout = listView.getLoadingLayoutProxy(false, true);
         layout.setPullLabel("上拉加载更多");
         layout.setRefreshingLabel("正在加载");
@@ -124,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, AboutActivity.class));
                     break;
                 case R.id.cacel:
+                    UtilSet.saveHistoryList(MainActivity.this);
                     System.exit(0);
                     break;
             }
@@ -138,10 +125,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    FloatingSearchView.OnFocusChangeListener focusChangeListener = new FloatingSearchView.OnFocusChangeListener() {
+        @Override
+        public void onFocus() {
+            searchView.swapSuggestions(UtilSet.history_list);
+            Collections.reverse(UtilSet.history_list);
+        }
+
+        @Override
+        public void onFocusCleared() {
+            //searchView.clearSuggestions();
+        }
+    };
+
+    FloatingSearchView.OnQueryChangeListener queryChangeListener = new FloatingSearchView.OnQueryChangeListener() {
+        @Override
+        public void onSearchTextChanged(String oldQuery, String newQuery) {
+            if (!oldQuery.equals("") && newQuery.equals("")) {
+                searchView.swapSuggestions(UtilSet.history_list);
+                Collections.reverse(UtilSet.history_list);
+            } else {
+                searchView.showProgress();
+                UtilSet.findSuggestions(newQuery, 6, FIND_SUGGESTION_SIMULATED_DELAY, new UtilSet.OnFindSuggestionsListener() {
+
+                    @Override
+                    public void onResults(List<MySearchSuggestion> results) {
+                        searchView.swapSuggestions(results);
+                        searchView.hideProgress();
+                    }
+                });
+            }
+        }
+    };
+
     FloatingSearchView.OnSearchListener searchListener = new FloatingSearchView.OnSearchListener() {
         @Override
         public void onSuggestionClicked(SearchSuggestion searchSuggestion) {
-
+            Log.e("eye", searchSuggestion.getBody());
+            onSearchAction(searchSuggestion.getBody());
         }
 
         @Override
@@ -149,9 +170,27 @@ public class MainActivity extends AppCompatActivity {
             q_keyword = currentQuery;
             if (!currentQuery.equals("")) {
                 MainActivity.IS_NEXT = 0;
+                UtilSet.addToHistory(currentQuery);
                 getBaiduList(currentQuery);
                 listView.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
-            } else listView.removeAllViews();
+            } else{
+                baiduList.removeAll(baiduList);
+                adapter.notifyDataSetChanged();
+            }
+        }
+    };
+
+    PullToRefreshBase.OnRefreshListener2 onRefreshListener = new PullToRefreshBase.OnRefreshListener2() {
+        @Override
+        public void onPullDownToRefresh(PullToRefreshBase refreshView) {
+
+        }
+
+        @Override
+        public void onPullUpToRefresh(PullToRefreshBase refreshView) {
+            if (!q_keyword.isEmpty()) {
+                new getUpdateDataTask().execute();
+            }
         }
     };
 
@@ -173,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                         baiduList = (List<Baidu>) msg.obj;
                         Log.e("eye", String.valueOf(baiduList.size()));
                         if (baiduList.size() == 0)
-                            Snackbar.make(getWindow().getDecorView(), "没有更多内容", Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(getWindow().getDecorView(), R.string.no_more_result, Snackbar.LENGTH_SHORT).show();
                         adapter = new BaiduListAdapter(baiduList, MainActivity.this);
                         listView.setAdapter(adapter);
                 }
@@ -206,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                                 baiduList.addAll((List<Baidu>) msg.obj);
                             } else {
                                 listView.setMode(PullToRefreshBase.Mode.DISABLED);
-                                Snackbar.make(getWindow().getDecorView(), "没有更多内容", Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(getWindow().getDecorView(), R.string.no_more_result, Snackbar.LENGTH_SHORT).show();
                             }
                             adapter.notifyDataSetChanged();
                             listView.onRefreshComplete();

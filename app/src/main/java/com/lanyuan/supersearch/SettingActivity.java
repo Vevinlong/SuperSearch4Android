@@ -38,6 +38,8 @@ public class SettingActivity extends AppCompatActivity {
         button = (Button) findViewById(R.id.button);
         button.setOnClickListener(onClickListener);
 
+        UtilSet.setTranslucentDecor(SettingActivity.this);
+
     }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {

@@ -1,5 +1,8 @@
 package com.lanyuan.supersearch;
 
+import android.os.Handler;
+import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import org.jsoup.Jsoup;
@@ -13,7 +16,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -22,8 +28,10 @@ public class GetBaiduList {
 
     static int pn = 10;
     static List<Baidu> list = new ArrayList<>();
+    static List<Baidu> Single_Result_List = new ArrayList<>();
     static List<String> site_list;
     static String last_Keyword;
+    static Handler handler;
 
     public static List<Baidu> getBaiduResult(String keyword, String[] sites) {
         pn = 10;
@@ -95,7 +103,12 @@ public class GetBaiduList {
 
     private static List<Baidu> getSingleBaiduResult(String keyword, String site, int pn) {
         String url = "https://www.baidu.com/s?wd=" + keyword + " site:" + site + "&pn=" + pn;
-        OkHttpClient client = new OkHttpClient();
+        List<Baidu> Single_Result = new ArrayList<>();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .build();
+
         Request request = new Request.Builder().url(url)
                 .addHeader("Accept", "*/*")
                 .addHeader("Accept-Encoding", "deflate, sdch")
@@ -110,11 +123,14 @@ public class GetBaiduList {
             Response response = client.newCall(request).execute();
             if (response.isSuccessful()) {
                 return GetBaiduList.paraseBaiduResult(response.body().string());
+            } else {
+                return Single_Result;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+
+        return Single_Result;
     }
 
     private static List<Baidu> paraseBaiduResult(String page) {
