@@ -60,6 +60,7 @@ public class UtilSet {
     }
 
     public static void setHistoryList(String history) {
+        history_list.removeAll(history_list);
         if (history.equals("")) return;
         for (String s : history.split(":")) {
             history_list.add(new MySearchSuggestion(s));
@@ -84,6 +85,10 @@ public class UtilSet {
         }
         editor.putString("history", sb.toString());
         editor.commit();
+    }
+
+    public static void clearHistory() {
+        history_list.removeAll(history_list);
     }
 
     public interface OnFindSuggestionsListener {

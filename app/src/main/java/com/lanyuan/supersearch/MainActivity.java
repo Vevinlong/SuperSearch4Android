@@ -12,12 +12,14 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
+import com.arlib.floatingsearchview.util.Util;
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
@@ -269,5 +271,22 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+    long LastTime = 0, NowTime = 0;
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
 
+            NowTime = System.currentTimeMillis();
+            if (NowTime - LastTime < 1000) {
+                UtilSet.saveHistoryList(MainActivity.this);
+                System.exit(0);
+            }
+            else {
+                Snackbar.make(getWindow().getDecorView(),"再点一次返回键退出",Snackbar.LENGTH_SHORT).show();
+            }
+            LastTime = NowTime;
+        }
+
+        return false;
+    }
 }
