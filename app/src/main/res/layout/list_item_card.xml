@@ -20,7 +20,7 @@
         android:descendantFocusability="afterDescendants"><!-- 给每个item增加background -->
 
         <TextView
-            android:id="@+id/line1"
+            android:id="@+id/result_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/black"
@@ -28,7 +28,7 @@
             android:textColorHighlight="@color/black"
             android:text="姚明110米栏夺冠"/>
         <TextView
-            android:id="@+id/line2"
+            android:id="@+id/result_message"
             android:layout_marginTop="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-                android:id="@+id/line3"
+                android:id="@+id/result_url"
                 android:layout_alignParentRight="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

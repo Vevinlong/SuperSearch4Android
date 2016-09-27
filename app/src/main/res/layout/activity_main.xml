@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:background="#DDDDDD"
     android:fitsSystemWindows="true"
-    tools:context="com.lanyuan.supersearch.MainActivity">
+    tools:context="com.lanyuan.supersearch.View.MainActivity">
 
     <com.handmark.pulltorefresh.library.PullToRefreshListView
         android:id="@+id/list_v"
@@ -16,13 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="60dp"/>
-
-    <!--<ListView
-        android:id="@+id/list_v"
-        android:divider="@null"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"></ListView>-->
 
     <com.arlib.floatingsearchview.FloatingSearchView
         android:id="@+id/floating_search_view"

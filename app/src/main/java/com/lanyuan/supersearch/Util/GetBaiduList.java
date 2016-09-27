@@ -1,9 +1,10 @@
-package com.lanyuan.supersearch;
+package com.lanyuan.supersearch.Util;
 
 import android.os.Handler;
-import android.os.Message;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
+
+import com.lanyuan.supersearch.Pojo.Baidu;
+import com.lanyuan.supersearch.View.MainActivity;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,15 +19,13 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class GetBaiduList {
 
-    static int pn = 10;
+    public static int pn = 10;
     static List<Baidu> list = new ArrayList<>();
     static List<Baidu> Single_Result_List = new ArrayList<>();
     static List<String> site_list;

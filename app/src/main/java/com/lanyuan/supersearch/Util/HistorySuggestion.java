@@ -1,15 +1,15 @@
-package com.lanyuan.supersearch;
+package com.lanyuan.supersearch.Util;
 
 import android.os.Parcel;
 
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 
-public class MySearchSuggestion implements SearchSuggestion {
+public class HistorySuggestion implements SearchSuggestion {
 
     private String searchKey;
     private boolean mIsHistory = false;
 
-    public MySearchSuggestion(String searchKey) {
+    public HistorySuggestion(String searchKey) {
         this.searchKey = searchKey;
     }
 
@@ -21,7 +21,7 @@ public class MySearchSuggestion implements SearchSuggestion {
         this.mIsHistory = mIsHistory;
     }
 
-    public MySearchSuggestion(Parcel source) {
+    public HistorySuggestion(Parcel source) {
         this.searchKey = source.readString();
         this.mIsHistory = source.readInt() != 0;
 
@@ -35,13 +35,13 @@ public class MySearchSuggestion implements SearchSuggestion {
     public static final Creator<SearchSuggestion> CREATOR = new Creator<SearchSuggestion>() {
         @Override
         public SearchSuggestion createFromParcel(Parcel source) {
-            return new MySearchSuggestion(source) {
+            return new HistorySuggestion(source) {
             };
         }
 
         @Override
         public SearchSuggestion[] newArray(int size) {
-            return new MySearchSuggestion[size];
+            return new HistorySuggestion[size];
         }
     };
 
@@ -58,8 +58,8 @@ public class MySearchSuggestion implements SearchSuggestion {
 
     @Override
     public boolean equals(Object o) {
-        MySearchSuggestion ms = (MySearchSuggestion)o;
-        if (ms.getBody().equals(this.getBody()))return true;
+        HistorySuggestion ms = (HistorySuggestion) o;
+        if (ms.getBody().equals(this.getBody())) return true;
         return false;
     }
 

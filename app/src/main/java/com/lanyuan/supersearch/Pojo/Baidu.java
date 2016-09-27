@@ -1,4 +1,4 @@
-package com.lanyuan.supersearch;
+package com.lanyuan.supersearch.Pojo;
 
 public class Baidu {
     private String title;

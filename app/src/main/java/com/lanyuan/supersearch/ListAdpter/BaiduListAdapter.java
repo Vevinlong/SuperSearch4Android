@@ -1,4 +1,4 @@
-package com.lanyuan.supersearch;
+package com.lanyuan.supersearch.ListAdpter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,6 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.lanyuan.supersearch.Pojo.Baidu;
+import com.lanyuan.supersearch.R;
 
 import java.util.List;
 
@@ -33,28 +36,28 @@ public class BaiduListAdapter extends BaseAdapter {
         return position;
     }
 
-    static class ViewHolder {
-        public TextView line1;
-        public TextView line2;
-        public TextView line3;
+    static class BaiduViewHolder {
+        public TextView result_title;
+        public TextView result_message;
+        public TextView result_url;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder = null;
+        BaiduViewHolder holder = null;
         if(convertView==null){
-            holder = new ViewHolder();
+            holder = new BaiduViewHolder();
             convertView = mInflater.inflate(R.layout.list_item_card,null);
-            holder.line1 = (TextView)convertView.findViewById(R.id.line1);
-            holder.line2 = (TextView)convertView.findViewById(R.id.line2);
-            holder.line3 = (TextView)convertView.findViewById(R.id.line3);
+            holder.result_title = (TextView)convertView.findViewById(R.id.result_title);
+            holder.result_message = (TextView)convertView.findViewById(R.id.result_message);
+            holder.result_url = (TextView)convertView.findViewById(R.id.result_url);
             convertView.setTag(holder);
         }else {
-            holder = (ViewHolder)convertView.getTag();
+            holder = (BaiduViewHolder)convertView.getTag();
         }
-        holder.line1.setText(list.get(position).getTitle());
-        holder.line2.setText(list.get(position).getInfo());
-        holder.line3.setText(list.get(position).getUrl());
+        holder.result_title.setText(list.get(position).getTitle());
+        holder.result_message.setText(list.get(position).getInfo());
+        holder.result_url.setText(list.get(position).getUrl());
 
         return convertView;
     }

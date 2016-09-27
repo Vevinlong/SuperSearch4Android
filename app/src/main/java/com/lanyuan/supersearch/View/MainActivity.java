@@ -1,4 +1,4 @@
-package com.lanyuan.supersearch;
+package com.lanyuan.supersearch.View;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,19 +13,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
-import com.arlib.floatingsearchview.util.Util;
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.lanyuan.supersearch.MyFloatSearchView.MyOnFocusChangeListener;
+import com.lanyuan.supersearch.MyFloatSearchView.MyOnMenuItemClickListener;
+import com.lanyuan.supersearch.MyFloatSearchView.MyOnQueryChangeListener;
+import com.lanyuan.supersearch.Pojo.Baidu;
+import com.lanyuan.supersearch.ListAdpter.BaiduListAdapter;
+import com.lanyuan.supersearch.Util.GetBaiduList;
+import com.lanyuan.supersearch.Util.HistoryHelper;
+import com.lanyuan.supersearch.R;
+import com.lanyuan.supersearch.Util.UtilSet;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,15 +40,15 @@ public class MainActivity extends AppCompatActivity {
     public static final int RESULT_SITES = 2;
     public static int IS_NEXT = 0;
 
-    FloatingSearchView searchView;
-    List<SearchSuggestion> searchSuggestions;
+    public SharedPreferences preferences;
+
+    public FloatingSearchView searchView;
     PullToRefreshListView listView;
     Handler handler;
     BaiduListAdapter adapter;
     List<Baidu> baiduList;
     String q_keyword = "";
     String[] sites;
-    SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,9 +67,9 @@ public class MainActivity extends AppCompatActivity {
         init();
 
         searchView.setOnSearchListener(searchListener);
-        searchView.setOnMenuItemClickListener(menuItemClickListener);
-        searchView.setOnQueryChangeListener(queryChangeListener);
-        searchView.setOnFocusChangeListener(focusChangeListener);
+        searchView.setOnMenuItemClickListener(new MyOnMenuItemClickListener(this));
+        searchView.setOnQueryChangeListener(new MyOnQueryChangeListener(this));
+        searchView.setOnFocusChangeListener(new MyOnFocusChangeListener(this));
 
         listView.setOnItemClickListener(itemClickListener);
         listView.setMode(PullToRefreshBase.Mode.DISABLED);
@@ -93,31 +98,13 @@ public class MainActivity extends AppCompatActivity {
         Log.e("eye","123");
         String history = preferences.getString("history","");
         Log.e("eye",history);
-        UtilSet.setHistoryList(history);
+        HistoryHelper.setHistoryList(history);
 
         ILoadingLayout layout = listView.getLoadingLayoutProxy(false, true);
         layout.setPullLabel("上拉加载更多");
         layout.setRefreshingLabel("正在加载");
         layout.setReleaseLabel("松开立即加载");
     }
-
-    FloatingSearchView.OnMenuItemClickListener menuItemClickListener = new FloatingSearchView.OnMenuItemClickListener() {
-        @Override
-        public void onActionMenuItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.setting:
-                    startActivityForResult(new Intent(MainActivity.this, SettingActivity.class), RESULT_FROM_SETTING);
-                    break;
-                case R.id.about:
-                    startActivity(new Intent(MainActivity.this, AboutActivity.class));
-                    break;
-                case R.id.cacel:
-                    UtilSet.saveHistoryList(MainActivity.this);
-                    System.exit(0);
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -126,39 +113,6 @@ public class MainActivity extends AppCompatActivity {
             sites = bundle.getStringArray("SITES");
         }
     }
-
-    FloatingSearchView.OnFocusChangeListener focusChangeListener = new FloatingSearchView.OnFocusChangeListener() {
-        @Override
-        public void onFocus() {
-            searchView.swapSuggestions(UtilSet.history_list);
-            Collections.reverse(UtilSet.history_list);
-        }
-
-        @Override
-        public void onFocusCleared() {
-            //searchView.clearSuggestions();
-        }
-    };
-
-    FloatingSearchView.OnQueryChangeListener queryChangeListener = new FloatingSearchView.OnQueryChangeListener() {
-        @Override
-        public void onSearchTextChanged(String oldQuery, String newQuery) {
-            if (!oldQuery.equals("") && newQuery.equals("")) {
-                searchView.swapSuggestions(UtilSet.history_list);
-                Collections.reverse(UtilSet.history_list);
-            } else {
-                searchView.showProgress();
-                UtilSet.findSuggestions(newQuery, 6, FIND_SUGGESTION_SIMULATED_DELAY, new UtilSet.OnFindSuggestionsListener() {
-
-                    @Override
-                    public void onResults(List<MySearchSuggestion> results) {
-                        searchView.swapSuggestions(results);
-                        searchView.hideProgress();
-                    }
-                });
-            }
-        }
-    };
 
     FloatingSearchView.OnSearchListener searchListener = new FloatingSearchView.OnSearchListener() {
         @Override
@@ -172,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
             q_keyword = currentQuery;
             if (!currentQuery.equals("")) {
                 MainActivity.IS_NEXT = 0;
-                UtilSet.addToHistory(currentQuery);
+                HistoryHelper.addToHistory(currentQuery);
                 getBaiduList(currentQuery);
                 listView.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
             } else{
@@ -278,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
             NowTime = System.currentTimeMillis();
             if (NowTime - LastTime < 1000) {
-                UtilSet.saveHistoryList(MainActivity.this);
+                HistoryHelper.saveHistoryList(MainActivity.this);
                 System.exit(0);
             }
             else {

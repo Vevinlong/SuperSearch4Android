@@ -1,10 +1,13 @@
-package com.lanyuan.supersearch;
+package com.lanyuan.supersearch.View;
 
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
+import com.lanyuan.supersearch.R;
+import com.lanyuan.supersearch.Util.UtilSet;
 
 public class AboutActivity extends AppCompatActivity {
 

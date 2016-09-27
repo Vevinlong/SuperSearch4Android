@@ -1,4 +1,4 @@
-package com.lanyuan.supersearch;
+package com.lanyuan.supersearch.View;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,10 +10,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import com.lanyuan.supersearch.R;
+import com.lanyuan.supersearch.Util.HistoryHelper;
+import com.lanyuan.supersearch.Util.UtilSet;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,7 +50,7 @@ public class SettingActivity extends AppCompatActivity {
                 ab.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        UtilSet.clearHistory();
+                        HistoryHelper.clearHistory();
                         Snackbar.make(getWindow().getDecorView(),"搜索记录已清空",Snackbar.LENGTH_SHORT).show();
                     }
                 });

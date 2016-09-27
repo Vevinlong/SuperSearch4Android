@@ -11,15 +11,16 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Design.Light.NoActionBar">
-        <activity android:name=".MainActivity">
+        <activity android:name=".View.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingActivity" />
-        <activity android:name=".AboutActivity"></activity>
+        <activity android:name=".View.SettingActivity" />
+        <activity android:name=".View.AboutActivity" />
+        <activity android:name=".View.SiteSetActivity"></activity>
     </application>
 
 </manifest>
