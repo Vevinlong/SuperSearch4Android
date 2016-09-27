@@ -32,9 +32,9 @@ public class GetBaiduList {
     static String last_Keyword;
     static Handler handler;
 
-    public static List<Baidu> getBaiduResult(String keyword, String[] sites) {
+    public static List<Baidu> getBaiduResult(String keyword) {
         pn = 10;
-        site_list = new ArrayList<>(Arrays.asList(sites));
+        site_list = SiteSetHelper.sites;
         if (!keyword.equals(last_Keyword)) {
             list.removeAll(list);
             last_Keyword = keyword;

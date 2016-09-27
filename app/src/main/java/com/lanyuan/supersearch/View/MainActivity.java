@@ -21,6 +21,7 @@ import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.handmark.pulltorefresh.library.ILoadingLayout;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.lanyuan.supersearch.Dao.CollectionDao;
 import com.lanyuan.supersearch.MyFloatSearchView.MyOnFocusChangeListener;
 import com.lanyuan.supersearch.MyFloatSearchView.MyOnMenuItemClickListener;
 import com.lanyuan.supersearch.MyFloatSearchView.MyOnQueryChangeListener;
@@ -29,6 +30,7 @@ import com.lanyuan.supersearch.ListAdpter.BaiduListAdapter;
 import com.lanyuan.supersearch.Util.GetBaiduList;
 import com.lanyuan.supersearch.Util.HistoryHelper;
 import com.lanyuan.supersearch.R;
+import com.lanyuan.supersearch.Util.SiteSetHelper;
 import com.lanyuan.supersearch.Util.UtilSet;
 
 import java.util.List;
@@ -41,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     public static int IS_NEXT = 0;
 
     public SharedPreferences preferences;
-
     public FloatingSearchView searchView;
     PullToRefreshListView listView;
     Handler handler;
@@ -54,10 +55,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        preferences = getSharedPreferences("Sites_Book", 0);
         searchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
         listView = (PullToRefreshListView) findViewById(R.id.list_v);
+        preferences = getSharedPreferences("Sites_Book", 0);
 
         UtilSet.updateInfo(MainActivity.this);
         UtilSet.setTranslucentDecor(MainActivity.this);
@@ -92,10 +92,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
-        String temp = preferences.getString("sites", "");
-        if (temp.equals("")) temp = "baidu.com";
-        sites = temp.split(":");
-        Log.e("eye","123");
+        CollectionDao.initCollectionDao(getApplicationContext());
+        SiteSetHelper.initSiteSetHelper();
+
         String history = preferences.getString("history","");
         Log.e("eye",history);
         HistoryHelper.setHistoryList(history);
@@ -182,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                 GetBaiduList.pn = 0;
                 Message msg = new Message();
                 msg.what = 1;
-                msg.obj = GetBaiduList.getBaiduResult(keyword, sites);
+                msg.obj = GetBaiduList.getBaiduResult(keyword);
                 MainActivity.this.handler.sendMessage(msg);
             }
         }).start();

@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.lanyuan.supersearch.Pojo.Collection;
 import com.lanyuan.supersearch.R;
+import com.lanyuan.supersearch.Util.SiteSetHelper;
 
 import java.util.List;
 
@@ -57,8 +58,14 @@ public class CollectionListAdapter extends BaseAdapter {
         } else {
             holder = (CollectionViewHolder) convertView.getTag();
         }
-        holder.collection_name.setText(collectionList.get(position).getCname());
-        holder.collection_sites.setText(collectionList.get(position).getCsite());
+        Collection collection = collectionList.get(position);
+        holder.collection_name.setText(collection.getCname());
+        holder.collection_sites.setText(SiteSetHelper.EncodeSitesD2T(collection.getCsite()));
+        if (collection.isSelected()){
+            holder.collection_checkbox.setChecked(true);
+        }else {
+            holder.collection_checkbox.setChecked(false);
+        }
         return convertView;
     }
 }

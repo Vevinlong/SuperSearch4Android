@@ -24,7 +24,6 @@ public class deleteCollectionNameOnClickListener implements DialogInterface.OnCl
         Snackbar.make(siteSetActivity.getWindow().getDecorView(), "删除成功", Snackbar.LENGTH_SHORT).show();
         CollectionDao.deleteCollection(collection);
         siteSetActivity.collections = CollectionDao.queryAllFromCollection();
-        Log.e("eye",String.valueOf(siteSetActivity.collections.size()));
         siteSetActivity.listView_collection.setAdapter(new CollectionListAdapter(siteSetActivity.collections, siteSetActivity.getApplicationContext()));
     }
 }

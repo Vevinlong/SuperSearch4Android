@@ -3,18 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools" tools:context=".View.MainActivity">
     <item android:id="@+id/setting"
         android:title="设置"
-        android:orderInCategory="1"
-        app:showAsAction="always"/>
+        android:orderInCategory="2"
+        app:showAsAction="ifRoom"/>
     <item android:id="@+id/about"
         android:title="关于"
-        android:orderInCategory="2"
+        android:orderInCategory="3"
         app:showAsAction="ifRoom"/>
     <item android:id="@+id/cacel"
         android:title="退出"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         app:showAsAction="ifRoom"/>
     <item android:id="@+id/site_set"
         android:title="网址集"
-        android:orderInCategory="4"
+        android:orderInCategory="1"
         android:showAsAction="ifRoom"/>
 </menu>

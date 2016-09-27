@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,21 +15,18 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.lanyuan.supersearch.CollectionListener.deleteCollectionNameOnClickListener;
+import com.lanyuan.supersearch.CollectionListener.editCollectionSitesOnClickListener;
 import com.lanyuan.supersearch.CollectionListener.updateCollectionNameOnClickListener;
 import com.lanyuan.supersearch.Dao.CollectionDao;
 import com.lanyuan.supersearch.ListAdpter.CollectionListAdapter;
 import com.lanyuan.supersearch.Pojo.Collection;
 import com.lanyuan.supersearch.R;
+import com.lanyuan.supersearch.Util.SiteSetHelper;
 import com.lanyuan.supersearch.Util.UtilSet;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static com.lanyuan.supersearch.R.id.cacel;
-import static com.lanyuan.supersearch.R.id.editText;
 
 public class SiteSetActivity extends AppCompatActivity {
 
@@ -52,10 +50,15 @@ public class SiteSetActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 CheckBox checkBox = (CheckBox) view.findViewById(R.id.collection_checkbox);
+                Collection collection = collections.get(position);
                 if (checkBox.isChecked()) {
                     checkBox.setChecked(false);
+                    collection.setSelected(false);
+                    CollectionDao.updateCollectionIsSelected(collection);
                 } else {
                     checkBox.setChecked(true);
+                    collection.setSelected(true);
+                    CollectionDao.updateCollectionIsSelected(collection);
                 }
             }
         });
@@ -64,16 +67,15 @@ public class SiteSetActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 AlertDialog.Builder ab = new AlertDialog.Builder(SiteSetActivity.this);
-                ab.setItems(new String[]{"修改网址集", "修改网址集名字", "删除网址集"}, new DialogInterface.OnClickListener() {
+                ab.setItems(new String[]{"编辑网址集", "修改网址集名字", "删除网址集"}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case 0:
-                                Log.e("eye", "0");
+                                editCollectionSites(collections.get(position));
                                 break;
                             case 1:
                                 updateCollectionName(collections.get(position));
-                                collections = CollectionDao.queryAllFromCollection();
                                 break;
                             case 2:
                                 deleteCollection(collections.get(position));
@@ -115,6 +117,22 @@ public class SiteSetActivity extends AppCompatActivity {
         });
     }
 
+    private void editCollectionSites(Collection collection) {
+        AlertDialog.Builder ab = new AlertDialog.Builder(SiteSetActivity.this);
+        LayoutInflater inflater = LayoutInflater.from(SiteSetActivity.this);
+        View view = inflater.inflate(R.layout.input_sites_dialog, null);
+        public_edit = (EditText) view.findViewById(R.id.add_sites_edit);
+        public_edit.setText(SiteSetHelper.EncodeSitesD2T(collection.getCsite()));
+        ab.setTitle("编辑网址集");
+        ab.setView(view);
+        ab.setCancelable(false);
+        ab.setPositiveButton("修改", null);
+        ab.setNegativeButton("取消", null);
+        AlertDialog alert = ab.create();
+        alert.show();
+        alert.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new editCollectionSitesOnClickListener(collection, public_edit, SiteSetActivity.this, alert));
+    }
+
     private void deleteCollection(Collection collection) {
         AlertDialog.Builder ab = new AlertDialog.Builder(SiteSetActivity.this);
         ab.setTitle("注意");
@@ -142,4 +160,17 @@ public class SiteSetActivity extends AppCompatActivity {
         collections = CollectionDao.queryAllFromCollection();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        int i = 0;
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            SiteSetHelper.removeAllFromSites();
+            for (Collection collection : collections) {
+                if (collection.isSelected())
+                    SiteSetHelper.addToSites(SiteSetHelper.EncodeSitesD2A(collection.getCsite()));
+            }
+            Log.e("eye", String.valueOf(SiteSetHelper.sites));
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 }

@@ -7,11 +7,13 @@ import com.j256.ormlite.table.DatabaseTable;
 public class Collection {
 
     @DatabaseField(generatedId = true)
-    int cid;
+    private int cid;
     @DatabaseField(defaultValue = "cname")
-    String cname;
+    private String cname;
     @DatabaseField(defaultValue = "csite")
-    String csite;
+    private String csite;
+    @DatabaseField(defaultValue = "isSelected")
+    private boolean isSelected;
 
     public Collection() {
 
@@ -20,11 +22,21 @@ public class Collection {
     public Collection(String cname, String csite) {
         this.cname = cname;
         this.csite = csite;
+        this.isSelected = false;
     }
 
-    public Collection(String cname){
+    public Collection(String cname) {
         this.cname = cname;
         this.csite = "";
+        this.isSelected = false;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 
     public String getCname() {

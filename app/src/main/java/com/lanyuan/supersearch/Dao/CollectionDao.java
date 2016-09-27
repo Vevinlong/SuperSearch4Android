@@ -44,6 +44,14 @@ public class CollectionDao {
 
     }
 
+    public static void updateCollectionIsSelected(Collection collection){
+        try {
+            collectionDao.update(collection);
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static List<Collection> queryAllFromCollection(){
         try {
             List<Collection> list = collectionDao.queryForAll();
