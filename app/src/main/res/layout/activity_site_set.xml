@@ -21,11 +21,22 @@
         android:layout_height="match_parent">
     </ListView>
 
-    <Button
-        android:layout_weight="1"
-        android:id="@+id/collection_add"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="添加新网址集" />
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/collection_add"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="添加新网址集" />
+        <Button
+            android:id="@+id/how_to_use"
+            android:layout_weight="10"
+            android:text="\?"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </LinearLayout>

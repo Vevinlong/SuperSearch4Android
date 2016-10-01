@@ -19,15 +19,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SettingActivity extends AppCompatActivity {
-    Button button;
+    Button clear_history;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
-        button = (Button)findViewById(R.id.button2);
-        button.setOnClickListener(new View.OnClickListener() {
+        clear_history = (Button)findViewById(R.id.clear_history);
+        clear_history.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder ab = new AlertDialog.Builder(SettingActivity.this);

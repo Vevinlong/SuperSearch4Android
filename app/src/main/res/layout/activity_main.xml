@@ -19,6 +19,7 @@
 
     <com.arlib.floatingsearchview.FloatingSearchView
         android:id="@+id/floating_search_view"
+        app:floatingSearch_leftActionMode="showSearch"
         app:floatingSearch_menu="@menu/app_menu"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

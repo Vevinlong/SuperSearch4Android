@@ -4,14 +4,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -41,9 +39,13 @@ public class MainActivity extends AppCompatActivity {
     public static final int RESULT_FROM_SETTING = 1;
     public static final int RESULT_SITES = 2;
     public static int IS_NEXT = 0;
+    public static int FLAG = 0;
 
     public SharedPreferences preferences;
     public FloatingSearchView searchView;
+
+    //static getUpdateDataTask dataTask;
+
     PullToRefreshListView listView;
     Handler handler;
     BaiduListAdapter adapter;
@@ -94,9 +96,10 @@ public class MainActivity extends AppCompatActivity {
     private void init() {
         CollectionDao.initCollectionDao(getApplicationContext());
         SiteSetHelper.initSiteSetHelper();
+        //dataTask = new getUpdateDataTask();
 
-        String history = preferences.getString("history","");
-        Log.e("eye",history);
+        String history = preferences.getString("history", "");
+        //Log.e("eye", history);
         HistoryHelper.setHistoryList(history);
 
         ILoadingLayout layout = listView.getLoadingLayoutProxy(false, true);
@@ -116,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
     FloatingSearchView.OnSearchListener searchListener = new FloatingSearchView.OnSearchListener() {
         @Override
         public void onSuggestionClicked(SearchSuggestion searchSuggestion) {
-            Log.e("eye", searchSuggestion.getBody());
             onSearchAction(searchSuggestion.getBody());
         }
 
@@ -125,10 +127,13 @@ public class MainActivity extends AppCompatActivity {
             q_keyword = currentQuery;
             if (!currentQuery.equals("")) {
                 MainActivity.IS_NEXT = 0;
+                MainActivity.FLAG = 1;
                 HistoryHelper.addToHistory(currentQuery);
+                searchView.showProgress();
+                listView.onRefreshComplete();
+                listView.setMode(PullToRefreshBase.Mode.DISABLED);
                 getBaiduList(currentQuery);
-                listView.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
-            } else{
+            } else {
                 baiduList.removeAll(baiduList);
                 adapter.notifyDataSetChanged();
             }
@@ -143,9 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onPullUpToRefresh(PullToRefreshBase refreshView) {
-            if (!q_keyword.isEmpty()) {
-                new getUpdateDataTask().execute();
-            }
+            updateBaiduList();
         }
     };
 
@@ -164,12 +167,18 @@ public class MainActivity extends AppCompatActivity {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case 1:
+                        //Log.e("eyey","getBaiduList");
                         baiduList = (List<Baidu>) msg.obj;
-                        Log.e("eye", String.valueOf(baiduList.size()));
-                        if (baiduList.size() == 0)
+                        //Log.e("eye", String.valueOf(baiduList.size()));
+                        if (baiduList.size() == 0) {
                             Snackbar.make(getWindow().getDecorView(), R.string.no_more_result, Snackbar.LENGTH_SHORT).show();
+                            listView.setMode(PullToRefreshBase.Mode.DISABLED);
+                        }
                         adapter = new BaiduListAdapter(baiduList, MainActivity.this);
                         listView.setAdapter(adapter);
+                        listView.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
+                        searchView.hideProgress();
+                        MainActivity.FLAG = 0;
                 }
                 super.handleMessage(msg);
             }
@@ -187,7 +196,41 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
-    private class getUpdateDataTask extends AsyncTask<Void, Void, String[]> {
+    private void updateBaiduList() {
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case 2:
+                        //Log.e("eyey","updateBaiduList");
+                        //Log.e("eyey", String.valueOf("flag:"+FLAG));
+                        if (msg.obj != null) {
+                            if(FLAG == 0)baiduList.addAll((List<Baidu>) msg.obj);
+                            //Log.e("eye", String.valueOf(((List<Baidu>) msg.obj).size()));
+                        } else {
+                            //Log.e("eye", "!!!");
+                            listView.setMode(PullToRefreshBase.Mode.DISABLED);
+                            Snackbar.make(getWindow().getDecorView(), R.string.no_more_result, Snackbar.LENGTH_SHORT).show();
+                        }
+                        adapter.notifyDataSetChanged();
+                        listView.onRefreshComplete();
+                }
+                super.handleMessage(msg);
+            }
+        };
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                GetBaiduList.pn = 0;
+                Message msg = new Message();
+                msg.what = 2;
+                msg.obj = GetBaiduList.updaterBaiduResult();
+                MainActivity.this.handler.sendMessage(msg);
+            }
+        }).start();
+    }
+
+    /*private class getUpdateDataTask extends AsyncTask<Void, Void, String[]> {
 
         @Override
         protected void onPreExecute() {
@@ -223,8 +266,10 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String[] strings) {
 
         }
-    }
+    }*/
+
     long LastTime = 0, NowTime = 0;
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -233,9 +278,8 @@ public class MainActivity extends AppCompatActivity {
             if (NowTime - LastTime < 1000) {
                 HistoryHelper.saveHistoryList(MainActivity.this);
                 System.exit(0);
-            }
-            else {
-                Snackbar.make(getWindow().getDecorView(),"再点一次返回键退出",Snackbar.LENGTH_SHORT).show();
+            } else {
+                Snackbar.make(getWindow().getDecorView(), "再点一次返回键退出", Snackbar.LENGTH_SHORT).show();
             }
             LastTime = NowTime;
         }

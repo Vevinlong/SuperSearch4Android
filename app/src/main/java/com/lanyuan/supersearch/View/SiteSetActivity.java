@@ -32,7 +32,7 @@ public class SiteSetActivity extends AppCompatActivity {
 
     public ListView listView_collection;
     public List<Collection> collections;
-    Button button_add;
+    Button button_add,howtouse;
     EditText public_edit;
 
     @Override
@@ -112,6 +112,18 @@ public class SiteSetActivity extends AppCompatActivity {
                     }
                 });
                 ab.setNegativeButton("取消", null);
+                ab.show();
+            }
+        });
+
+        howtouse = (Button) findViewById(R.id.how_to_use);
+        howtouse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder ab = new AlertDialog.Builder(SiteSetActivity.this);
+                ab.setTitle("使用说明");
+                ab.setMessage(R.string.how_to_use);
+                ab.setPositiveButton("了解",null);
                 ab.show();
             }
         });
